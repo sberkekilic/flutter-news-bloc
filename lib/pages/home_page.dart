@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:isar_starter_project/news-page.dart';
+import '../repository/news_repository.dart';
 import 'login_page.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatelessWidget {
+  final NewsRepository newsRepository = NewsRepository(newsApiClient: NewsApiClient(httpClient: http.Client()));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +39,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
+                  MaterialPageRoute(builder: (context) => NewsPage(newsRepository: newsRepository)),
                 );
               },
               child: Text('Continue as guest'),

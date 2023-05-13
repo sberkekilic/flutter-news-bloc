@@ -1,39 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
-import 'package:isar_starter_project/repository/news_repository.dart';
-import 'news_bloc.dart';
-import 'pages/home_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'blocs/settings/settings_cubit.dart';
+import 'blocs/settings/settings_state.dart';
+import 'localizations/localizations.dart';
+import 'routes/routes.dart';
+import 'themes/themes.dart';
 
 void main() {
-  final NewsApiRepository newsApiRepository = NewsApiRepository(httpClient: http.Client(), newsApiClient: null);
-  final NewsRepository newsRepository = NewsRepository(newsApiRepository: newsApiRepository);
-  final NewsBloc newsBloc = NewsBloc(newsRepository: newsRepository);
-
-  runApp(MyApp(
-    newsBloc: newsBloc,
-    newsRepository: newsRepository,
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final NewsBloc newsBloc;
-  final NewsRepository newsRepository;
-
-  MyApp({required this.newsBloc, required this.newsRepository});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Isar Starter Project',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: BlocProvider.value(
-        value: newsBloc,
-        child: HomePage(),
-      ),
+    return BlocProvider(
+      create: (context) => SettingsCubit(SettingsState()),
+      child:
+          BlocBuilder<SettingsCubit, SettingsState>(builder: (context, state) {
+        return MaterialApp.router(
+          title: 'Isar Starter Project',
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLanguages
+              .map((e) => Locale(e, ""))
+              .toList(),
+          locale: Locale(state.language, ""),
+          themeMode: state.darkMode ? ThemeMode.dark : ThemeMode.light,
+          theme: Themes.lightTheme,
+          darkTheme: Themes.darkTheme,
+          routerConfig: routes,
+        );
+      }),
     );
   }
 }
-

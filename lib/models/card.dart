@@ -9,57 +9,90 @@ import 'article.dart';
 class NewsCard extends StatelessWidget {
   final NewsArticle article;
 
-  const NewsCard({required this.article});
+
+  const NewsCard({Key? key, required this.article}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.network(article.image),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(article.title, style: Theme.of(context).textTheme.headline6),
+    int articleIndex;
+    return GestureDetector(
+      onTap: () {
+        articleIndex = article.index;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPage(article: article, articleIndex: articleIndex,),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(article.publishedDate, style: Theme.of(context).textTheme.caption),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(article.excerpt),
-          ),
-        ],
+        );
+      },
+      child: Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(article.image),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.title,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    article.publishedDate,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Text(
+                    article.excerpt,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class NewsData {
-
   Future<String> _loadArticleAsset() async {
-    final String? jsonString = await rootBundle.loadString('assets/news/news.json');
+    final String? jsonString =
+    await rootBundle.loadString('assets/news/news.json');
     return jsonString ?? 'boş';
   }
-
 
   Future<List<NewsArticle>> getArticles() async {
     final String jsonData = await _loadArticleAsset();
     final dynamic jsonResult = json.decode(jsonData);
 
     if (jsonResult is List) {
-      return jsonResult.map((article) => NewsArticle.fromJson(article)).toList();
+      return jsonResult
+          .map((article) => NewsArticle.fromJson(article))
+          .toList();
     } else if (jsonResult is Map) {
       final List<dynamic> articlesList = jsonResult['articles'];
-      return articlesList.map((article) => NewsArticle.fromJson(article)).toList();
+      return articlesList
+          .map((article) => NewsArticle.fromJson(article))
+          .toList();
     } else {
       throw Exception('Failed to load articles');
     }
   }
 
+  Future<List<NewsArticle>> get articles async => getArticles();
 }
-
-
-
 
